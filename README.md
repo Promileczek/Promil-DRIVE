@@ -5,6 +5,9 @@ https://img.shields.io/github/downloads/Promileczek/Promil-DRIVE/total.svg?logo=
 
 # Promil-DRIVE
 Strona robiona z nudów :)
+https://discord.gg/EC7C9QSw3w/
+
+Serdecznie zapraszam na serwer discord, na którym będą podawane informacje jak idzie robienie strony, serwer jest podczas tworzenia więc no.
 _____________________________
 Co planuje dodać:
 1. pasek pokazujący ile zostało do skończenia przesyłania plików
