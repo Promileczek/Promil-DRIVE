@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promil-DRIVE</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="disk-info">
+        <p>Zajęte: <span id="used-space">{{ used }}</span> MB</p>
+        <p>Wolne: <span id="free-space">{{ free }}</span> MB</p>
+        <div class="progress-bar-container">
+            <div class="progress-bar" style="width: {{ used_percentage }}%;"></div>
+        </div>
+        <p class="percentage">{{ used_percentage }}%</p>
+    </div>
+
+    <div class="breadcrumb-nav">
+        <i class="fas fa-folder tree-icon"></i>
+        <a class="path-link" href="{{ url_for('index', subdir='') }}">home</a>
+        {% for part in current.split('/') %}
+            <span class="separator">/</span>
+            {% if loop.last %}
+                <span class="path-link current-folder">{{ part }}</span>
+            {% else %}
+                <a class="path-link" href="{{ url_for('index', subdir=current.split('/')[:loop.index] | join('/')) }}">{{ part }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="file-grid-container">
+        {% if current %}
+        <a class="no-underline" href="{{ url_for('index', subdir=current.rsplit('/', 1)[0] if '/' in current else '') }}">
+            <div class="file-grid-item">
+                <i class="fas fa-level-up-alt file-icon"></i>
+                <span class="file-name">...</span>
+            </div>
+        </a>
+        {% endif %}
+
+        {% for dir in dirs %}
+        <div class="file-grid-item-wrapper">
+            <a class="folder-link" href="{{ url_for('index', subdir=current + '/' + dir if current else dir) }}">
+                <div class="file-grid-item">
+                    <i class="fas fa-folder file-icon"></i>
+                    <span class="file-name">{{ dir }}</span>
+                </div>
+            </a>
+            <div class="file-actions-grid">
+                <a class="no-underline" href="#" onclick="toggleDropdown(this)">
+                    <i class="fas fa-ellipsis-v dots"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="{{ url_for('download_folder', folder_path=current + '/' + dir if current else dir) }}">Pobierz</a>
+                    <form action="{{ url_for('delete_folder', folder_name=current + '/' + dir if current else dir) }}" method="post" onsubmit="return confirm('Jesteś pewien, że chcesz usunąć ten folder?');">
+                        <button type="submit">Usuń</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% for file in files %}
+        <div class="file-grid-item-wrapper">
+            <div class="file-grid-item" onclick="openModal('{{ url_for('download', filename=file.path) }}', '{{ file.type }}', '{{ file.name }}')">
+                {% if file.type == 'image' %}
+                    <img src="{{ url_for('download', filename=file.path) }}" alt="{{ file.name }}" class="file-thumbnail">
+                {% elif file.type == 'video' %}
+                    <video class="file-thumbnail" preload="metadata" src="{{ url_for('download', filename=file.path) }}#t=0.5"></video>
+                    <div class="video-overlay"></div>
+                {% elif file.type == 'audio' %}
+                    <i class="fas fa-music file-icon audio-icon"></i>
+                {% else %}
+                    <i class="fas fa-file-alt file-icon"></i>
+                {% endif %}
+                <span class="file-name">{{ file.name }}</span>
+            </div>
+            <div class="file-actions-grid">
+                <a class="no-underline" href="#" onclick="toggleDropdown(this)">
+                    <i class="fas fa-ellipsis-v dots"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="{{ url_for('download', filename=file.path) }}" download="{{ file.name }}">Pobierz</a>
+                    <form action="{{ url_for('delete_file', filename=file.path) }}" method="post" onsubmit="return confirm('Jesteś pewien, że chcesz usunąć ten plik?');">
+                        <button type="submit">Usuń</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" class="upload-form">
+        <input type="hidden" name="current_dir" value="{{ current }}">
+        <div class="upload-group">
+            <label for="file-upload">Wgraj pliki:</label>
+            <input type="file" id="file-upload" name="files" multiple>
+        </div>
+        <div class="upload-group">
+            <label for="folder-upload">Wgraj folder:</label>
+            <input type="file" id="folder-upload" name="files" webkitdirectory directory>
+        </div>
+        <input type="submit" value="Wyślij">
+    </form>
+
+    <div id="media-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-media-container"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Dropdown menu logic
+            document.querySelectorAll('.dots').forEach(dots => {
+                dots.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const dropdown = dots.closest('.file-actions-grid').querySelector('.dropdown-menu');
+                    const allDropdowns = document.querySelectorAll('.dropdown-menu.show');
+                    allDropdowns.forEach(d => {
+                        if (d !== dropdown) {
+                            d.classList.remove('show');
+                        }
+                    });
+                    dropdown.classList.toggle('show');
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.file-actions-grid')) {
+                    document.querySelectorAll('.dropdown-menu.show').forEach(d => {
+                        d.classList.remove('show');
+                    });
+                }
+            });
+
+            // Modal logic
+            const modal = document.getElementById('media-modal');
+            const mediaContainer = document.getElementById('modal-media-container');
+
+            window.openModal = function(url, type, name) {
+                mediaContainer.innerHTML = '';
+                let mediaElement;
+                if (type === 'image') {
+                    mediaElement = document.createElement('img');
+                    mediaElement.src = url;
+                } else if (type === 'video') {
+                    mediaElement = document.createElement('video');
+                    mediaElement.src = url;
+                    mediaElement.controls = true;
+                    mediaElement.autoplay = true;
+                } else if (type === 'audio') {
+                    mediaElement = document.createElement('audio');
+                    mediaElement.src = url;
+                    mediaElement.controls = true;
+                    mediaElement.autoplay = true;
+                } else {
+                    alert('Podgląd dla tego typu pliku nie jest dostępny.');
+                    return;
+                }
+                mediaContainer.appendChild(mediaElement);
+                modal.style.display = 'flex';
+            }
+
+            window.closeModal = function() {
+                const mediaElement = mediaContainer.querySelector('video, audio, img');
+                if (mediaElement) {
+                    if (mediaElement.tagName === 'VIDEO' || mediaElement.tagName === 'AUDIO') {
+                        mediaElement.pause();
+                    }
+                }
+                modal.style.display = 'none';
+                mediaContainer.innerHTML = '';
+            }
+
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            document.addEventListener('keydown', function(event) {
+                if (event.key === "Escape") {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
