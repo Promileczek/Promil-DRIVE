@@ -11,7 +11,8 @@ Co planuje dodać:
 2. zamiast przesyłania z przycisku dropnięcie plików na strone
 3. masowe usuwanie plików
 4. ile jest miejsca ogólnie
-5. zmianę w app.py, gdy sie pobiera folder w zipie to plik sie robi na serwerze a póżniej na serwerze nie usuwa sie ten zip, przez co jest w stanie zużywać troche miejsca
+5. zabezpieczenie gifów/mp4/mp3 i zdjęć
+6. zmianę w app.py, gdy sie pobiera folder w zipie to plik sie robi na serwerze a póżniej na serwerze nie usuwa sie ten zip, przez co jest w stanie zużywać troche miejsca
 
 
 Jak ją uruchomić?
