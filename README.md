@@ -12,7 +12,8 @@ Co planuje dodać:
 3. masowe usuwanie plików
 4. ile jest miejsca ogólnie
 5. zabezpieczenie gifów/mp4/mp3 i zdjęć
-6. zmianę w app.py, gdy sie pobiera folder w zipie to plik sie robi na serwerze a póżniej na serwerze nie usuwa sie ten zip, przez co jest w stanie zużywać troche miejsca
+6. naprawić usuwanie
+7. zmianę w app.py, gdy sie pobiera folder w zipie to plik sie robi na serwerze a póżniej na serwerze nie usuwa sie ten zip, przez co jest w stanie zużywać troche miejsca
 
 
 Jak ją uruchomić?
