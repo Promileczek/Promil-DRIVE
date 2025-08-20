@@ -1,3 +1,8 @@
+[![GitHub release](https://img.shields.io/github/v/tag/Promileczek/Promil-DRIVE.svg?label=release&sort=semver)](https://github.com/Promileczek/Promil-DRIVE/releases)
+
+[![GitHub Releases Stats](
+https://img.shields.io/github/downloads/Promileczek/Promil-DRIVE/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=Promileczek&repository=Promil-DRIVE&page=1&per_page=5)
+
 # Promil-DRIVE
 Strona robiona z nudów :)
 _____________________________
